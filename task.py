@@ -25,6 +25,10 @@ class TodoListManager:
         self.tasks = []
 
     def add_task(self, description):
+        if not isinstance(description, str):
+            raise TypeError("Description must be a string.")
+        if not description:
+            raise ValueError("Description cannot be empty.")
         self.tasks.append(Task(description))
 
     def list_tasks(self):
@@ -36,9 +40,17 @@ class TodoListManager:
         return task_list_string
 
     def mark_task_as_done(self, index):
+        if not isinstance(index, int):
+            raise TypeError("Index must be an integer.")
+        if not 1 <= index <= len(self.tasks):
+            raise IndexError("Invalid task index.")
         self.tasks[index - 1].mark_as_done()
 
     def delete_task(self, index):
+        if not isinstance(index, int):
+            raise TypeError("Index must be an integer.")
+        if not 1 <= index <= len(self.tasks):
+            raise IndexError("Invalid task index.")
         del self.tasks[index - 1]
 
     def save_to_file(self, filename="todo_list.txt"):
