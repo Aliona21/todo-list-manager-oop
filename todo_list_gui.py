@@ -1,9 +1,12 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog, scrolledtext
+import datetime
 from todo_list_manager import TodoListManager
+from task import Task
+
 
 class TodoListApp:
-    def __init__(self, root):
+    def __init__(self, root: tk.Tk):
         self.root = root
         self.root.title("To-Do List Manager")
         self.manager = TodoListManager()
@@ -16,11 +19,10 @@ class TodoListApp:
 
         self.create_widgets()
 
-    def create_widgets(self):
+    def create_widgets(self) -> None:
         self.task_list_label = tk.Label(self.root, text="To-Do List:")
         self.task_list_label.pack(pady=5)
-
-        self.task_list_text = scrolledtext.ScrolledText(self.root, width=50, height=15)
+        self.task_list_text = scrolledtext.ScrolledText(self.root, width=60, height=15)
         self.task_list_text.pack(pady=10)
         self.task_list_text.config(state=tk.DISABLED)
 
@@ -44,16 +46,33 @@ class TodoListApp:
 
         self.update_task_list()
 
-    def add_task(self):
+    def add_task(self) -> None:
         description = simpledialog.askstring("Add Task", "Enter task description:")
-        if description:
-            try:
-                self.manager.add_task(description)
-                self.update_task_list()
-            except Exception as e:
-                messagebox.showerror("Error", str(e))
+        if not description:
+            messagebox.showerror("Error", "Description cannot be empty.")
+            return
 
-    def mark_task_as_done(self):
+        priority = simpledialog.askinteger("Add Task", "Enter priority (1-3, 1 is highest, or leave blank for None):")
+        if priority is not None and not 1 <= priority <= 3:
+            messagebox.showerror("Error", "Invalid priority. Please enter a number between 1 and 3, or leave blank.")
+            return
+
+        date_str = simpledialog.askstring("Add Task", "Enter deadline (YYYY-MM-DD, or leave blank):")
+        deadline = None
+        if date_str:
+            try:
+                deadline = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
+            except ValueError:
+                messagebox.showerror("Error", "Invalid date format. Please use YYYY-MM-DD.")
+                return
+
+        try:
+            self.manager.add_task(description, priority, deadline)
+            self.update_task_list()
+        except Exception as e:
+            messagebox.showerror("Error", str(e))
+
+    def mark_task_as_done(self) -> None:
         try:
             task_list_string = self.manager.list_tasks()
             if "No tasks" in task_list_string:
@@ -69,7 +88,7 @@ class TodoListApp:
         except IndexError:
             messagebox.showerror("Error", "Invalid task index.")
 
-    def delete_task(self):
+    def delete_task(self) -> None:
         try:
             task_list_string = self.manager.list_tasks()
             if "No tasks" in task_list_string:
@@ -84,7 +103,7 @@ class TodoListApp:
         except IndexError:
             messagebox.showerror("Error", "Invalid task index.")
 
-    def save_to_file(self):
+    def save_to_file(self) -> None:
         filename = simpledialog.askstring("Save to File", "Enter filename:")
         if filename:
             try:
@@ -93,7 +112,7 @@ class TodoListApp:
             except Exception as e:
                 messagebox.showerror("Error", str(e))
 
-    def load_from_file(self):
+    def load_from_file(self) -> None:
         filename = simpledialog.askstring("Load from File", "Enter filename:")
         if filename:
             try:
@@ -103,7 +122,7 @@ class TodoListApp:
             except Exception as e:
                 messagebox.showerror("Error", str(e))
 
-    def update_task_list(self):
+    def update_task_list(self) -> None:
         self.task_list_text.config(state=tk.NORMAL)
         self.task_list_text.delete("1.0", tk.END)
         task_list_string = self.manager.list_tasks()
@@ -111,7 +130,7 @@ class TodoListApp:
             self.task_list_text.insert(tk.END, task_list_string)
         self.task_list_text.config(state=tk.DISABLED)
 
-    def exit_app(self):
+    def exit_app(self) -> None:
         self.root.destroy()
 
 
