@@ -1,12 +1,22 @@
+#This module defines the TodoListApp class, which provides a GUI for the to-do list manager.
+
 import tkinter as tk
 from tkinter import messagebox, simpledialog, scrolledtext
 import datetime
-from todo_list_manager import TodoListManager
-from task import Task
+from todo_list_manager import TodoListManager # Import the TodoListManager class
+from task import Task # Import the Task class
 
 
 class TodoListApp:
+    """
+    A GUI application for managing a to-do list.
+    """
     def __init__(self, root: tk.Tk):
+        """
+        Initializes the main window and its components.
+
+        :param root: The main Tkinter window.
+        """
         self.root = root
         self.root.title("To-Do List Manager")
         self.manager = TodoListManager()
@@ -20,6 +30,9 @@ class TodoListApp:
         self.create_widgets()
 
     def create_widgets(self) -> None:
+        """
+        Creates the GUI widgets (labels, buttons, text area).
+        """
         self.task_list_label = tk.Label(self.root, text="To-Do List:")
         self.task_list_label.pack(pady=5)
         self.task_list_text = scrolledtext.ScrolledText(self.root, width=60, height=15)
@@ -47,6 +60,9 @@ class TodoListApp:
         self.update_task_list()
 
     def add_task(self) -> None:
+        """
+        Adds a new task with description, priority, and deadline.
+        """
         description = simpledialog.askstring("Add Task", "Enter task description:")
         if not description:
             messagebox.showerror("Error", "Description cannot be empty.")
@@ -73,6 +89,9 @@ class TodoListApp:
             messagebox.showerror("Error", str(e))
 
     def mark_task_as_done(self) -> None:
+        """
+        Marks a task as done using a dialog box.
+        """
         try:
             task_list_string = self.manager.list_tasks()
             if "No tasks" in task_list_string:
@@ -89,6 +108,9 @@ class TodoListApp:
             messagebox.showerror("Error", "Invalid task index.")
 
     def delete_task(self) -> None:
+        """
+        Deletes a task using a dialog box.
+        """
         try:
             task_list_string = self.manager.list_tasks()
             if "No tasks" in task_list_string:
@@ -104,6 +126,9 @@ class TodoListApp:
             messagebox.showerror("Error", "Invalid task index.")
 
     def save_to_file(self) -> None:
+        """
+        Saves the to-do list to a file.
+        """
         filename = simpledialog.askstring("Save to File", "Enter filename:")
         if filename:
             try:
@@ -115,6 +140,9 @@ class TodoListApp:
                 messagebox.showerror("Error", str(e))
 
     def load_from_file(self) -> None:
+        """
+        Loads the to-do list from a file.
+        """
         filename = simpledialog.askstring("Load from File", "Enter filename:")
         if filename:
             try:
@@ -125,6 +153,9 @@ class TodoListApp:
                 messagebox.showerror("Error", str(e))
 
     def update_task_list(self) -> None:
+        """
+        Updates the task list display.
+        """
         self.task_list_text.config(state=tk.NORMAL)
         self.task_list_text.delete("1.0", tk.END)
         task_list_string = self.manager.list_tasks()
@@ -133,6 +164,9 @@ class TodoListApp:
         self.task_list_text.config(state=tk.DISABLED)
 
     def exit_app(self) -> None:
+        """
+        Exits the application.
+        """
         self.root.destroy()
 
 

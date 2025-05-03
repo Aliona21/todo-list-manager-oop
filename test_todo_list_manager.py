@@ -6,6 +6,9 @@ import os
 
 class TestTodoListManager(unittest.TestCase):
     def setUp(self):
+        """
+        Set up a new TodoListManager and tasks before each test.
+        """
         self.manager = TodoListManager()
         self.task1 = Task("Buy groceries", False, 1, datetime.date(2025, 12, 25))
         self.task2 = Task("Write report", True, 2, datetime.date(2025, 12, 26))

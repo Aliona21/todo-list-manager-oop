@@ -1,14 +1,29 @@
+#This module defines the TodoListManager class.
+
 import datetime
 from typing import List, Optional
-
-from task import Task
+from task import Task  # Import the Task class from task.py
 
 
 class TodoListManager:
+    """
+    Manages a collection of tasks.
+    """
+
     def __init__(self):
+        """
+        Initializes the TodoListManager.
+        """
         self.tasks: List[Task] = []
 
     def add_task(self, description: str, priority: Optional[int] = None, deadline: Optional[datetime.date] = None) -> None:
+        """
+        Adds a new task to the list.
+
+        :param description: The description of the task.
+        :param priority: The priority of the task (1-3, where 1 is highest).
+        :param deadline: The deadline for the task.
+        """
         if not isinstance(description, str):
             raise TypeError("Description must be a string.")
         if not description:
@@ -23,6 +38,11 @@ class TodoListManager:
         self.tasks.append(Task(description, priority=priority, deadline=deadline))
 
     def list_tasks(self) -> str:
+        """
+        Lists all tasks in the to-do list.
+
+        :return: A string representation of the tasks.
+        """
         if not self.tasks:
             return "No tasks in the to-do list."
         task_list_string = "To-Do List:\n"
@@ -31,6 +51,11 @@ class TodoListManager:
         return task_list_string
 
     def mark_task_as_done(self, index: int) -> None:
+        """
+        Marks a task as done.
+
+        :param index: The index of the task to mark as done.
+        """
         if not isinstance(index, int):
             raise TypeError("Index must be an integer.")
         if not 1 <= index <= len(self.tasks):
@@ -38,6 +63,11 @@ class TodoListManager:
         self.tasks[index - 1].mark_as_done()
 
     def delete_task(self, index: int) -> None:
+        """
+        Deletes a task from the list.
+
+        :param index: The index of the task to delete.
+        """
         if not isinstance(index, int):
             raise TypeError("Index must be an integer.")
         if not 1 <= index <= len(self.tasks):
@@ -45,6 +75,11 @@ class TodoListManager:
         del self.tasks[index - 1]
 
     def save_to_file(self, filename: str = "todo_list.csv") -> None:
+        """
+        Saves the to-do list to a file.  Uses CSV format.
+
+        :param filename: The name of the file to save to.
+        """
         if not isinstance(filename, str):
             raise TypeError("Filename must be a string.")
         if not filename.endswith(".csv"):
@@ -57,6 +92,11 @@ class TodoListManager:
             raise Exception(f"Error saving to file: {e}")
 
     def load_from_file(self, filename: str = "todo_list.txt") -> None:
+        """
+        Loads the to-do list from a file.  Assumes CSV format.
+
+        :param filename: The name of the file to load from.
+        """
         if not isinstance(filename, str):
             raise TypeError("Filename must be a string.")
         if not filename.endswith(".csv"):
