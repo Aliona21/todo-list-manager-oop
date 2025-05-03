@@ -31,8 +31,8 @@ class TestTodoListManager(unittest.TestCase):
 
     def test_list_tasks(self):
         self.manager.add_task("Buy groceries", 1, datetime.date(2025, 12, 25))
-        self.manager.add_task("Write report", True, 2, datetime.date(2025, 12, 26))
-        expected_output = "To-Do List:\n1. [ ] Buy groceries | Priority: High | Deadline: 2025-12-25\n2. [X] Write report | Priority: Medium | Deadline: 2025-12-26\n"
+        self.manager.add_task("Write report", 2, datetime.date(2025, 12, 26))
+        expected_output = "To-Do List:\n1. [ ] Buy groceries | Priority: High | Deadline: 2025-12-25\n2. [ ] Write report | Priority: Medium | Deadline: 2025-12-26\n"
         self.assertEqual(self.manager.list_tasks(), expected_output)
         self.manager.tasks = []
         self.assertEqual(self.manager.list_tasks(), "No tasks in the to-do list.")
