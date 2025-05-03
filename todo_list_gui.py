@@ -63,7 +63,7 @@ class TodoListApp:
             try:
                 deadline = datetime.datetime.strptime(date_str, "%Y-%m-%d").date()
             except ValueError:
-                messagebox.showerror("Error", "Invalid date format. Please use YYYY-MM-DD.")
+                messagebox.showerror("Error", "Invalid date format. Please use %Y-%m-%d.")
                 return
 
         try:
@@ -107,6 +107,8 @@ class TodoListApp:
         filename = simpledialog.askstring("Save to File", "Enter filename:")
         if filename:
             try:
+                if not filename.endswith(".csv"):
+                    filename += ".csv"
                 self.manager.save_to_file(filename)
                 messagebox.showinfo("Success", "To-do list saved successfully.")
             except Exception as e:
