@@ -3,18 +3,56 @@
 import datetime
 from typing import List, Optional
 from task import Task  # Import the Task class from task.py
+import abc
 
+# Define an interface for saving tasks
+class TaskSaver(abc.ABC):
+    @abc.abstractmethod
+    def save(self, tasks: List[Task], filename: str) -> None:
+        pass
+
+# Implement concrete strategies for saving tasks
+class TextTaskSaver(TaskSaver):
+    def save(self, tasks: List[Task], filename: str) -> None:
+        """Saves tasks to a plain text file."""
+        if not isinstance(filename, str):
+            raise TypeError("Filename must be a string.")
+        try:
+            with open(filename, "w") as f:
+                for task in tasks:
+                    f.write(f"{'X' if task.is_done else 'False'},{task.description},{task.priority if task.priority is not None else 'None'},{task.deadline.strftime('%Y-%m-%d') if task.deadline else 'None'}\n")
+        except Exception as e:
+            raise Exception(f"Error saving to file: {e}")
+class CSVSaver(TaskSaver):
+    def save(self, tasks: List[Task], filename: str) -> None:
+        """Saves tasks to a CSV file."""
+        import csv
+        if not isinstance(filename, str):
+            raise TypeError("Filename must be a string.")
+        try:
+            with open(filename, "w", newline="") as f:
+                writer = csv.writer(f)
+                writer.writerow(["is_done", "description", "priority", "deadline"])  # header
+                for task in tasks:
+                    writer.writerow([
+                        'X' if task.is_done else 'False',
+                        task.description,
+                        task.priority if task.priority is not None else 'None',
+                        task.deadline.strftime('%Y-%m-%d') if task.deadline else 'None'
+                    ])
+        except Exception as e:
+            raise Exception(f"Error saving to CSV file: {e}")
 
 class TodoListManager:
     """
-    Manages a collection of tasks.
+    Manages a collection of tasks.  Implements the Strategy Pattern.
     """
-
-    def __init__(self):
+    def __init__(self, task_saver: TaskSaver = None):  # Strategy is injected here.
         """
         Initializes the TodoListManager.
         """
         self.tasks: List[Task] = []
+        self.task_saver = task_saver or TextTaskSaver() # Default strategy
 
     def add_task(self, description: str, priority: Optional[int] = None, deadline: Optional[datetime.date] = None) -> None:
         """
@@ -74,22 +112,13 @@ class TodoListManager:
             raise IndexError("Invalid task index.")
         del self.tasks[index - 1]
 
-    def save_to_file(self, filename: str = "todo_list.csv") -> None:
+    def save_to_file(self, filename: str) -> None:
         """
-        Saves the to-do list to a file.  Uses CSV format.
+        Saves the to-do list to a file.  Uses the injected strategy.
 
         :param filename: The name of the file to save to.
         """
-        if not isinstance(filename, str):
-            raise TypeError("Filename must be a string.")
-        if not filename.endswith(".csv"):
-            filename += ".csv"
-        try:
-            with open(filename, "w") as f:
-                for task in self.tasks:
-                    f.write(f"{'X' if task.is_done else 'False'},{task.description},{task.priority if task.priority is not None else 'None'},{task.deadline.strftime('%Y-%m-%d') if task.deadline else 'None'}\n")
-        except Exception as e:
-            raise Exception(f"Error saving to file: {e}")
+        self.task_saver.save(self.tasks, filename)
 
     def load_from_file(self, filename: str = "todo_list.txt") -> None:
         """
@@ -104,19 +133,37 @@ class TodoListManager:
         self.tasks = []
         try:
             with open(filename, "r") as f:
-                for line in f:
-                    parts = line.strip().split(",")
-                    if len(parts) == 4:
-                        is_done = parts[0] == "X"
-                        description = parts[1]
-                        priority = int(parts[2]) if parts[2] != "None" else None
-                        deadline_str = parts[3]
-                        deadline = datetime.datetime.strptime(deadline_str,
-                                                             '%Y-%m-%d').date() if deadline_str != "None" and deadline_str != "None" else None
-                        self.tasks.append(
-                            Task(description, is_done, priority, deadline))
+                reader = f.readlines()
+                if reader:
+                    header = reader[0].strip().split(",")
+                    if header == ["is_done", "description", "priority", "deadline"]:
+                        for line in reader[1:]:
+                            parts = line.strip().split(",")
+                            if len(parts) == 4:
+                                is_done = parts[0] == "X"
+                                description = parts[1]
+                                priority = int(parts[2]) if parts[2] != "None" else None
+                                deadline_str = parts[3]
+                                deadline = datetime.datetime.strptime(deadline_str,
+                                                                     '%Y-%m-%d').date() if deadline_str != "None" and deadline_str != "None" else None
+                                self.tasks.append(
+                                    Task(description, is_done, priority, deadline))
+                            else:
+                                print(f"Skipping invalid line: {line.strip()}")
                     else:
-                        print(f"Skipping invalid line: {line.strip()}")
+                         for line in reader:
+                            parts = line.strip().split(",")
+                            if len(parts) == 4:
+                                is_done = parts[0] == "X"
+                                description = parts[1]
+                                priority = int(parts[2]) if parts[2] != "None" else None
+                                deadline_str = parts[3]
+                                deadline = datetime.datetime.strptime(deadline_str,
+                                                                     '%Y-%m-%d').date() if deadline_str != "None" and deadline_str != "None" else None
+                                self.tasks.append(
+                                    Task(description, is_done, priority, deadline))
+                            else:
+                                print(f"Skipping invalid line: {line.strip()}")
         except FileNotFoundError:
             pass
         except Exception as e:
