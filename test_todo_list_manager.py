@@ -5,12 +5,13 @@ from todo_list_manager import TodoListManager
 import os
 
 class TestTodoListManager(unittest.TestCase):
-
     def setUp(self):
         self.manager = TodoListManager()
         self.task1 = Task("Buy groceries", False, 1, datetime.date(2025, 12, 25))
         self.task2 = Task("Write report", True, 2, datetime.date(2025, 12, 26))
-        self.task3 = Task("Call John", False, None, None) #added None
+        self.task3 = Task("Call John", False, 3, None)
+        self.task4 = Task("Pay bills", False, None, datetime.date(2025, 10, 30))
+        self.task5 = Task("Write a very long report", True, 1, datetime.date(2025, 11, 15))
 
     def test_add_task(self):
         self.manager.add_task("Buy groceries", 1, datetime.date(2025, 12, 25))
@@ -64,19 +65,19 @@ class TestTodoListManager(unittest.TestCase):
             self.manager.delete_task(0)
 
     def test_save_and_load_tasks(self):
-        self.manager.tasks = [self.task1, self.task2, self.task3]
-        self.manager.save_to_file("test_todo_list.txt")
+        self.manager.tasks = [self.task1, self.task2, self.task3, self.task4, self.task5]
+        self.manager.save_to_file("test_todo_list.csv")
 
         new_manager = TodoListManager()
-        new_manager.load_from_file("test_todo_list.txt")
-        self.assertEqual(new_manager.tasks, [self.task1, self.task2, self.task3])
+        new_manager.load_from_file("test_todo_list.csv")
+        self.assertEqual(new_manager.tasks, [self.task1, self.task2, self.task3, self.task4, self.task5])
 
-        #test that file not found does not raise error
-        new_manager.load_from_file("nonexistent_file.txt")
+        # test that file not found does not raise error
+        new_manager.load_from_file("nonexistent_file.csv")
 
         with self.assertRaises(TypeError):
             self.manager.save_to_file(123)
         with self.assertRaises(TypeError):
             self.manager.load_from_file(123)
-        if os.path.exists("test_todo_list.txt"):
-            os.remove("test_todo_list.txt")
+        if os.path.exists("test_todo_list.csv"):
+            os.remove("test_todo_list.csv")
