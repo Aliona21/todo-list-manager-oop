@@ -3,7 +3,7 @@
 import tkinter as tk
 from tkinter import messagebox, simpledialog, scrolledtext
 import datetime
-from todo_list_manager import TodoListManager # Import the TodoListManager class
+from todo_list_manager import TodoListManager, CSVSaver # Import the classes from todo_list_manager.py file
 from task import Task # Import the Task class
 
 
@@ -19,8 +19,9 @@ class TodoListApp:
         """
         self.root = root
         self.root.title("To-Do List Manager")
-        self.manager = TodoListManager()
-        self.filename = "todo_list.txt"
+        self.task_saver = CSVSaver()  # Use the CSV strategy
+        self.manager = TodoListManager(self.task_saver)
+        self.filename = "todo_list.csv"
 
         try:
             self.manager.load_from_file(self.filename)
@@ -168,7 +169,6 @@ class TodoListApp:
         Exits the application.
         """
         self.root.destroy()
-
 
 
 if __name__ == "__main__":

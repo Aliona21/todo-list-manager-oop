@@ -1,7 +1,7 @@
 import unittest
 import datetime
 from task import Task
-from todo_list_manager import TodoListManager
+from todo_list_manager import TodoListManager, CSVSaver
 import os
 
 class TestTodoListManager(unittest.TestCase):
@@ -9,7 +9,8 @@ class TestTodoListManager(unittest.TestCase):
         """
         Set up a new TodoListManager and tasks before each test.
         """
-        self.manager = TodoListManager()
+        self.task_saver = CSVSaver()
+        self.manager = TodoListManager(self.task_saver)
         self.task1 = Task("Buy groceries", False, 1, datetime.date(2025, 12, 25))
         self.task2 = Task("Write report", True, 2, datetime.date(2025, 12, 26))
         self.task3 = Task("Call John", False, 3, None)
@@ -71,7 +72,7 @@ class TestTodoListManager(unittest.TestCase):
         self.manager.tasks = [self.task1, self.task2, self.task3, self.task4, self.task5]
         self.manager.save_to_file("test_todo_list.csv")
 
-        new_manager = TodoListManager()
+        new_manager = TodoListManager(CSVSaver())  # Inject the strategy
         new_manager.load_from_file("test_todo_list.csv")
         self.assertEqual(new_manager.tasks, [self.task1, self.task2, self.task3, self.task4, self.task5])
 
